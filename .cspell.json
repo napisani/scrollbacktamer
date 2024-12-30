@@ -1,0 +1,17 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "scrollback",
+    "scrollbacktamer",
+    "impls",
+    "impl",
+
+  ],
+  "flagWords": [],
+  "ignorePaths": [
+    "node_modules/**",
+    "package-lock.json",
+    "yarn.lock"
+  ]
+}
