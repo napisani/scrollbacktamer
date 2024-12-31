@@ -7,9 +7,12 @@ import (
 	"syscall"
 
 	"github.com/google/shlex"
+	"github.com/napisani/scrollbacktamer/cli"
+	"github.com/napisani/scrollbacktamer/lib"
 )
 
 func runScrollbackEditCmd(cmd string) error {
+
 	parts, err := shlex.Split(cmd)
 	if err != nil {
 		return fmt.Errorf("failed to parse command: %w", err)
@@ -27,28 +30,35 @@ func runScrollbackEditCmd(cmd string) error {
 	}
 	return syscall.Exec(path, args, os.Environ())
 }
+
 func main() {
-	tty := GetTTY()
+	fmt.Println(os.Args)
+	settings, err := cli.ParseCLIArgs()
+	if err != nil {
+		panic(err)
+	}
+	tty := lib.GetTTY()
 	fmt.Println(tty)
 	reader, err := tty.GetScrollbackStream()
 	if err != nil {
 		panic(err)
 	}
 
-	editorCmd, err := GetEditorCommand()
+	editorCmd, err := lib.GetEditorCommand()
 	if err != nil {
 		panic(err)
 	}
 
-	fileName, err := GetTempFileName()
+	fileName, err := lib.GetTempFileName()
 	if err != nil {
 		panic(err)
 	}
 
-	settings := Settings{ScrollbackTerminator: "exit", Units: UnitsLines, LastN: -1}
-	WriteStream(&reader, fileName, &settings)
+	fmt.Println(settings)
 
-  defer os.Remove(fileName)
+	lib.WriteStream(&reader, fileName, settings)
+
+	defer os.Remove(fileName)
 	cmd := fmt.Sprintf(editorCmd, fileName)
 	fmt.Println(cmd)
 	err = runScrollbackEditCmd(cmd)

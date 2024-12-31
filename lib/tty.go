@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"fmt"
@@ -55,7 +55,6 @@ func (t *TMux) GetScrollbackStream() (io.Reader, error) {
 	// Return the pipe reader
 	return pr, nil
 }
-
 
 var ttyImpls = []TTY{
 	&TMux{},

@@ -6,7 +6,9 @@
     "scrollbacktamer",
     "impls",
     "impl",
-
+    "shlex",
+    "napisani",
+    "cli"
   ],
   "flagWords": [],
   "ignorePaths": [
