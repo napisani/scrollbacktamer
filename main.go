@@ -9,6 +9,8 @@ import (
 	"github.com/google/shlex"
 	"github.com/napisani/scrollbacktamer/cli"
 	"github.com/napisani/scrollbacktamer/lib"
+	"github.com/napisani/scrollbacktamer/lib/tty"
+
 )
 
 func runScrollbackEditCmd(cmd string) error {
@@ -23,7 +25,6 @@ func runScrollbackEditCmd(cmd string) error {
 	cmdOnly := parts[0]
 	args := parts
 
-	// Find the full path of the command
 	path, err := exec.LookPath(cmdOnly)
 	if err != nil {
 		return err
@@ -36,7 +37,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("failed to parse CLI args: %w", err))
 	}
-	tty, err := lib.GetTTY()
+	tty, err := tty.GetTTY()
 	if err != nil {
 		panic(fmt.Errorf("failed to get tty: %w", err))
 	}
