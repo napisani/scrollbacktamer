@@ -60,14 +60,14 @@ var ttyImpls = []TTY{
 	&TMux{},
 }
 
-func GetTTY() TTY {
+func GetTTY() (TTY, error) {
 	for _, impl := range ttyImpls {
 		if ok, err := impl.IsInTTY(); ok {
 			if err != nil {
-				fmt.Println(err)
+				return nil, fmt.Errorf("failed to check if in tty: %w", err)
 			}
-			return impl
+			return impl, nil
 		}
 	}
-	return nil
+	return nil, fmt.Errorf("The current TTY could not be identified or is not supported")
 }

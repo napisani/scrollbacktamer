@@ -17,30 +17,31 @@ func GetTempFileName() (string, error) {
 }
 
 func WriteStream(r *io.Reader, filename string, settings *Settings) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("failed to create file %s: %w", filename, err)
+	}
+
+	defer file.Close()
+
 	switch settings.Units {
 	case ScrollbackUnitLines:
 		if settings.LastN > 0 {
-			return writeLastNLines(r, filename, settings.LastN)
+			return writeLastNLines(r, file, settings.LastN)
 		}
-		return writeEntireStream(r, filename)
+		return writeAllLines(r, file)
 	case ScrollbackUnitSegments:
 		if settings.LastN > 0 {
-			return writeLastNSegments(r, filename, settings.LastN, *settings.ScrollbackTerminator)
+			return writeLastNSegments(r, file, settings.LastN, *settings.ScrollbackTerminator)
 		}
-		return writeEntireStream(r, filename)
+		return writeAllLines(r, file)
 	default:
 		return fmt.Errorf("invalid units: %s", settings.Units)
 	}
+
 }
 
-func writeLastNLines(r *io.Reader, filename string, n int) error {
-	fmt.Println("writeLastNLines")
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
+func writeLastNLines(r *io.Reader, w *os.File, n int) error {
 	reader := bufio.NewReader(*r)
 	lines := make([]string, 0, n)
 
@@ -50,7 +51,7 @@ func writeLastNLines(r *io.Reader, filename string, n int) error {
 			if err == io.EOF {
 				break
 			}
-			return err
+			return fmt.Errorf("failed to read line: %w", err)
 		}
 		lines = append(lines, line)
 		if len(lines) > n {
@@ -59,7 +60,7 @@ func writeLastNLines(r *io.Reader, filename string, n int) error {
 	}
 
 	for _, line := range lines {
-		_, err := file.WriteString(line)
+		_, err := w.WriteString(line)
 		if err != nil {
 			return err
 		}
@@ -67,31 +68,12 @@ func writeLastNLines(r *io.Reader, filename string, n int) error {
 	return nil
 }
 
-func writeEntireStream(r *io.Reader, filename string) error {
-	fmt.Println("writeEntireStream")
-	// Open the file for writing
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// Write the entire stream
-	_, err = io.Copy(file, *r)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func writeAllLines(r *io.Reader, w *os.File) error {
+	_, err := io.Copy(w, *r)
+	return err
 }
 
-func writeLastNSegments(r *io.Reader, filename string, n int, reg regexp.Regexp) error {
-	fmt.Println("writeLastNSegments")
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+func writeLastNSegments(r *io.Reader, w *os.File, n int, reg regexp.Regexp) error {
 	cmdSegments := [][]string{}
 	reader := bufio.NewReader(*r)
 	for {
@@ -100,7 +82,7 @@ func writeLastNSegments(r *io.Reader, filename string, n int, reg regexp.Regexp)
 			if err == io.EOF {
 				break
 			}
-			return err
+			return fmt.Errorf("failed to read line: %w", err)
 		}
 
 		if reg.MatchString(line) {
@@ -120,9 +102,9 @@ func writeLastNSegments(r *io.Reader, filename string, n int, reg regexp.Regexp)
 
 	for _, segment := range cmdSegments {
 		for _, line := range segment {
-			_, err := file.WriteString(line)
+			_, err := w.WriteString(line)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to write line: %w", err)
 			}
 		}
 	}
