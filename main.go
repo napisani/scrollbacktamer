@@ -36,7 +36,10 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("failed to parse CLI args: %w", err))
 	}
-	tty := lib.GetTTY()
+	tty, err := lib.GetTTY()
+	if err != nil {
+		panic(fmt.Errorf("failed to get tty: %w", err))
+	}
 	reader, err := tty.GetScrollbackStream()
 	if err != nil {
 		panic(fmt.Errorf("failed to get scrollback stream: %w", err))
