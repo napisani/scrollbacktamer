@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"regexp"
 )
 
@@ -8,7 +9,7 @@ type ScrollbackUnit string
 
 const (
 	ScrollbackUnitLines    ScrollbackUnit = "lines"
-	ScrollbackUnitCommands ScrollbackUnit = "commands"
+	ScrollbackUnitSegments ScrollbackUnit = "segments"
 )
 
 type Settings struct {
@@ -16,4 +17,16 @@ type Settings struct {
 	Units                ScrollbackUnit
 	LastN                int
 	Editor               string
+}
+
+func ValidateSettings(settings *Settings) error {
+	if settings.Units != ScrollbackUnitLines && settings.Units != ScrollbackUnitSegments {
+		return fmt.Errorf("invalid units: %s", settings.Units)
+	}
+
+	if settings.Units == ScrollbackUnitSegments && settings.ScrollbackTerminator == nil {
+		return fmt.Errorf("a terminator is required for segment-based scrollback editing")
+	}
+
+	return nil
 }

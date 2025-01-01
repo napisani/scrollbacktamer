@@ -35,23 +35,24 @@ func main() {
 	fmt.Println(os.Args)
 	settings, err := cli.ParseCLIArgs()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to parse CLI args: %w", err))
 	}
 	tty := lib.GetTTY()
 	fmt.Println(tty)
 	reader, err := tty.GetScrollbackStream()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to get scrollback stream: %w", err))
+
 	}
 
-	editorCmd, err := lib.GetEditorCommand()
+	editorCmd, err := lib.GetEditorCommand(settings)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to get the editor to use for scrollback editing: %w", err))
 	}
 
 	fileName, err := lib.GetTempFileName()
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to get a temporary file name: %w", err))
 	}
 
 	fmt.Println(settings)
@@ -63,7 +64,7 @@ func main() {
 	fmt.Println(cmd)
 	err = runScrollbackEditCmd(cmd)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to run the editor: %w", err))
 	}
 
 }

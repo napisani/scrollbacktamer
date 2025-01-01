@@ -23,9 +23,9 @@ func WriteStream(r *io.Reader, filename string, settings *Settings) error {
 			return writeLastNLines(r, filename, settings.LastN)
 		}
 		return writeEntireStream(r, filename)
-	case ScrollbackUnitCommands:
+	case ScrollbackUnitSegments:
 		if settings.LastN > 0 {
-			return writeLastNCommands(r, filename, settings.LastN, *settings.ScrollbackTerminator)
+			return writeLastNSegments(r, filename, settings.LastN, *settings.ScrollbackTerminator)
 		}
 		return writeEntireStream(r, filename)
 	default:
@@ -85,8 +85,8 @@ func writeEntireStream(r *io.Reader, filename string) error {
 	return nil
 }
 
-func writeLastNCommands(r *io.Reader, filename string, n int, reg regexp.Regexp) error {
-  fmt.Println("writeLastNCommands")
+func writeLastNSegments(r *io.Reader, filename string, n int, reg regexp.Regexp) error {
+	fmt.Println("writeLastNSegments")
 	file, err := os.Create(filename)
 	if err != nil {
 		return err

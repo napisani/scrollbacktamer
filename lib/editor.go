@@ -41,9 +41,8 @@ func getFallbackEditor() (string, error) {
 	return ensureTemplated(editor), nil
 }
 
-// export SCROLLBACK_EDITOR='nvim +"term cat %s"'  +"execute ':normal! G'"
-func GetEditorCommand() (string, error) {
-	editor := os.Getenv("SCROLLBACK_EDITOR")
+func GetEditorCommand(settings *Settings) (string, error) {
+	editor := settings.Editor
 	if editor == "" {
 		return getFallbackEditor()
 	}
