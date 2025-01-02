@@ -40,7 +40,7 @@
           # remeber to bump this hash when your dependencies change.
           #vendorSha256 = pkgs.lib.fakeSha256;
 
-          vendorHash = "sha256-NzI/Ms98diZFHXeRdEE/XDlGaCOBtBQEogLxAuRZwQQ=";
+          vendorHash = "sha256-5xyEKZG1fogU7M2y+W6UH5pztscu77ZwIyLdGwMjrdU=";
         };
 
         devShells.default = pkgs.mkShell { buildInputs = devDeps; };
