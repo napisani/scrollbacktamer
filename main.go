@@ -32,6 +32,7 @@ func runScrollbackEditCmd(cmd string) error {
 }
 
 func getReader(settings *lib.Settings) (io.Reader, error) {
+	// if a file was passed just use the file without detecting the TTY
 	if settings.File != "" {
 		return os.Open(settings.File)
 	}
