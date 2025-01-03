@@ -95,8 +95,7 @@ func writeLastNSegments(r *io.Reader, w *os.File, n int, reg regexp.Regexp) erro
 				cmdSegments = append(cmdSegments, []string{})
 			}
 			lastIdx := len(cmdSegments) - 1
-			lastSegment := cmdSegments[lastIdx]
-			lastSegment = append(lastSegment, line)
+			cmdSegments[lastIdx] = append(cmdSegments[lastIdx], line)
 		}
 	}
 
