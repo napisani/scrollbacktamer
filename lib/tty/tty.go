@@ -5,11 +5,6 @@ import (
 	"io"
 )
 
-type ScrollbackReadSettings struct {
-	ANSIColors bool
-	LineLimit  int
-}
-
 type TTY interface {
 	IsInTTY() (bool, error)
 	GetScrollbackStream() (io.Reader, error)

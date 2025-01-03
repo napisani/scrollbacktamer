@@ -17,6 +17,7 @@ type Settings struct {
 	Units                ScrollbackUnit
 	LastN                int
 	Editor               string
+	File                 string
 }
 
 func ValidateSettings(settings *Settings) error {

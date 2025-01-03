@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"syscall"
@@ -10,11 +11,9 @@ import (
 	"github.com/napisani/scrollbacktamer/cli"
 	"github.com/napisani/scrollbacktamer/lib"
 	"github.com/napisani/scrollbacktamer/lib/tty"
-
 )
 
 func runScrollbackEditCmd(cmd string) error {
-
 	parts, err := shlex.Split(cmd)
 	if err != nil {
 		return fmt.Errorf("failed to parse command: %w", err)
@@ -32,19 +31,27 @@ func runScrollbackEditCmd(cmd string) error {
 	return syscall.Exec(path, args, os.Environ())
 }
 
+func getReader(settings *lib.Settings) (io.Reader, error) {
+	if settings.File != "" {
+		return os.Open(settings.File)
+	}
+
+	tty, err := tty.GetTTY()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get tty: %w", err)
+	}
+	return tty.GetScrollbackStream()
+}
+
 func main() {
 	settings, err := cli.ParseCLIArgs()
 	if err != nil {
 		panic(fmt.Errorf("failed to parse CLI args: %w", err))
 	}
-	tty, err := tty.GetTTY()
-	if err != nil {
-		panic(fmt.Errorf("failed to get tty: %w", err))
-	}
-	reader, err := tty.GetScrollbackStream()
-	if err != nil {
-		panic(fmt.Errorf("failed to get scrollback stream: %w", err))
 
+	reader, err := getReader(settings)
+	if err != nil {
+		panic(fmt.Errorf("failed to get reader: %w", err))
 	}
 
 	editorCmd, err := lib.GetEditorCommand(settings)

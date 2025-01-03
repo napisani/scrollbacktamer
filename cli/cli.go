@@ -35,11 +35,15 @@ func ParseCLIArgs() (*lib.Settings, error) {
 	var units string
 	var terminator string
 
-	// export SBTAMER_EDITOR='nvim +"term cat %s"  +"execute \":normal! G\""'
 	flag.StringVar(&settings.Editor,
 		"editor",
 		getDefaultValue("EDITOR", "", func(v string) string { return v }),
 		"Editor segment",
+	)
+	flag.StringVar(&settings.File,
+		"file",
+		getDefaultValue("FILE", "", func(v string) string { return v }),
+		"File with scrollback content",
 	)
 	flag.IntVar(&settings.LastN, "last", getDefaultValue("LAST", -1, func(v string) int {
 		i, _ := strconv.Atoi(v)
