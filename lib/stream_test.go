@@ -34,7 +34,7 @@ func TestWriteLastNLines(t *testing.T) {
 }
 
 func TestWriteLastNSegments(t *testing.T) {
-	input := strings.NewReader("cmd1\noutput1\n\ncmd2\noutput2\n\ncmd3\noutput3\n")
+	input := strings.NewReader("cmd1\noutput1\ncmd2\noutput2\ncmd3\noutput3\n")
 	tmpfile, err := os.CreateTemp("", "test")
 	if err != nil {
 		t.Fatal(err)
