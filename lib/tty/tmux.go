@@ -39,3 +39,7 @@ func (t *TMux) GetScrollbackStream() (io.Reader, error) {
 
 	return pr, nil
 }
+
+func (t *TMux) GetName() string {
+  return "tmux"
+}

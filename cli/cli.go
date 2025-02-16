@@ -45,6 +45,12 @@ func ParseCLIArgs() (*lib.Settings, error) {
 		getDefaultValue("FILE", "", func(v string) string { return v }),
 		"File with scrollback content",
 	)
+
+	flag.StringVar(&settings.TTY,
+		"tty",
+		getDefaultValue("TTY", "", func(v string) string { return v }),
+		"manually define the TTY being used instead of auto-detecting")
+
 	flag.IntVar(&settings.LastN, "last", getDefaultValue("LAST", -1, func(v string) int {
 		i, _ := strconv.Atoi(v)
 		return i
@@ -55,6 +61,10 @@ func ParseCLIArgs() (*lib.Settings, error) {
 	flag.StringVar(&terminator, "terminator",
 		getDefaultValue("TERMINATOR", "", func(v string) string { return v }),
 		"Scrollback terminator string")
+	flag.BoolVar(&settings.Verbose, "v", getDefaultValue("VERBOSE", false, func(v string) bool {
+		b, _ := strconv.ParseBool(v)
+		return b
+	}), "Verbose output")
 
 	flag.Parse()
 

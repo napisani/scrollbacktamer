@@ -18,6 +18,12 @@ type Settings struct {
 	LastN                int
 	Editor               string
 	File                 string
+	Verbose              bool
+	TTY                  string
+}
+
+func (s *Settings) String() string {
+	return fmt.Sprintf("Settings{ScrollbackTerminator: %v, Units: %v, LastN: %v, Editor: %v, File: %v, Verbose: %v}", s.ScrollbackTerminator, s.Units, s.LastN, s.Editor, s.File, s.Verbose)
 }
 
 func ValidateSettings(settings *Settings) error {
