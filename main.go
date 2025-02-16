@@ -80,6 +80,7 @@ func main() {
 		log.Fatalf("Failed to get editor command: %v", err)
 		panic(fmt.Errorf("failed to get the editor to use for scrollback editing: %w", err))
 	}
+	log.Println("Editor command: ", editorCmd)
 
 	log.Println("Generating temporary file name")
 	fileName, err := lib.GetTempFileName()
