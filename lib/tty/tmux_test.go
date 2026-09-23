@@ -1,9 +1,33 @@
 package tty
 
 import (
+	"io"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
+
+func TestTMuxCaptureFailureIsReturned(t *testing.T) {
+	dir := t.TempDir()
+	tmuxPath := filepath.Join(dir, "tmux")
+	if err := os.WriteFile(tmuxPath, []byte("#!/bin/sh\necho capture failed >&2\nexit 1\n"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir)
+
+	reader, err := (&TMux{}).GetScrollbackStream()
+	if err != nil {
+		t.Fatalf("GetScrollbackStream() start error = %v", err)
+	}
+	contents, err := io.ReadAll(reader)
+	if err == nil || !strings.Contains(err.Error(), "capture failed") {
+		t.Fatalf("ReadAll() contents = %q, error = %v; want capture failure", contents, err)
+	}
+	if strings.Contains(string(contents), "capture failed") {
+		t.Fatalf("tmux stderr leaked into scrollback contents: %q", contents)
+	}
+}
 
 func TestTMuxIsInTTY(t *testing.T) {
 	tmux := &TMux{}

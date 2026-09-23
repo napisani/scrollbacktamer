@@ -1,9 +1,12 @@
 package tty
 
 import (
+	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type TMux struct {
@@ -25,7 +28,8 @@ func (t *TMux) GetScrollbackStream() (io.Reader, error) {
 	pr, pw := io.Pipe()
 
 	cmd.Stdout = pw
-	cmd.Stderr = pw
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 
 	err := cmd.Start()
 	if err != nil {
@@ -33,13 +37,22 @@ func (t *TMux) GetScrollbackStream() (io.Reader, error) {
 	}
 
 	go func() {
-		cmd.Wait()
-		pw.Close()
+		if err := cmd.Wait(); err != nil {
+			message := strings.TrimSpace(stderr.String())
+			if message != "" {
+				err = fmt.Errorf("tmux capture-pane: %s: %w", message, err)
+			} else {
+				err = fmt.Errorf("tmux capture-pane: %w", err)
+			}
+			_ = pw.CloseWithError(err)
+			return
+		}
+		_ = pw.Close()
 	}()
 
 	return pr, nil
 }
 
 func (t *TMux) GetName() string {
-  return "tmux"
+	return "tmux"
 }

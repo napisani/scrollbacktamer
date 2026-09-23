@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"syscall"
 
 	"github.com/google/shlex"
 	"github.com/napisani/scrollbacktamer/cli"
@@ -35,14 +34,15 @@ func runScrollbackEditCmd(cmd string) error {
 	if len(parts) == 0 {
 		return fmt.Errorf("empty command")
 	}
-	cmdOnly := parts[0]
-	args := parts
-
-	path, err := exec.LookPath(cmdOnly)
+	path, err := exec.LookPath(parts[0])
 	if err != nil {
 		return err
 	}
-	return syscall.Exec(path, args, os.Environ())
+	editor := exec.Command(path, parts[1:]...)
+	editor.Stdin = os.Stdin
+	editor.Stdout = os.Stdout
+	editor.Stderr = os.Stderr
+	return editor.Run()
 }
 
 func getReader(settings *lib.Settings) (io.Reader, error) {
@@ -63,6 +63,9 @@ func main() {
 	settings, err := cli.ParseCLIArgs()
 	if err != nil {
 		panic(fmt.Errorf("failed to parse CLI args: %w", err))
+	}
+	if err := lib.ValidateSettings(settings); err != nil {
+		log.Fatalf("Invalid settings: %v", err)
 	}
 	setupLogging(settings.Verbose)
 	log.Println("Settings: ", settings)

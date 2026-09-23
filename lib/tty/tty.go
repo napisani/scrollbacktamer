@@ -26,14 +26,13 @@ func GetTTY(force_tty string) (TTY, error) {
 	}
 
 	for _, impl := range ttyImpls {
-		if ok, err := impl.IsInTTY(); ok {
-			if err != nil {
-				return nil, fmt.Errorf("failed to check if in tty: %w", err)
-			}
+		ok, err := impl.IsInTTY()
+		if err != nil {
+			return nil, fmt.Errorf("failed to check if in tty: %w", err)
+		}
+		if ok {
 			return impl, nil
 		}
 	}
-	firstImpl := ttyImpls[0]
-	return firstImpl, nil
-	// return nil, fmt.Errorf("The current TTY could not be identified or is not supported")
+	return nil, fmt.Errorf("the current TTY could not be identified or is not supported")
 }

@@ -8,6 +8,32 @@ import (
 	"testing"
 )
 
+func TestGetTempFileNameCreatesPrivateUniqueFiles(t *testing.T) {
+	first, err := GetTempFileName()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(first)
+	second, err := GetTempFileName()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(second)
+
+	if first == second {
+		t.Fatalf("temporary filenames collided: %q", first)
+	}
+	for _, filename := range []string{first, second} {
+		info, err := os.Stat(filename)
+		if err != nil {
+			t.Fatalf("stat %q: %v", filename, err)
+		}
+		if info.Mode().Perm() != 0600 {
+			t.Fatalf("mode for %q = %04o, want 0600", filename, info.Mode().Perm())
+		}
+	}
+}
+
 func TestWriteLastNLines(t *testing.T) {
 	input := strings.NewReader("line1\nline2\nline3\nline4\n")
 	tmpfile, err := os.CreateTemp("", "test")

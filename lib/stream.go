@@ -5,19 +5,24 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"regexp"
-	"time"
 )
 
 func GetTempFileName() (string, error) {
-	epoch := time.Now().Unix()
-	file := filepath.Join(os.TempDir(), fmt.Sprintf("sbt-%d.scrollback", epoch))
-	return file, nil
+	file, err := os.CreateTemp("", "sbt-*.scrollback")
+	if err != nil {
+		return "", err
+	}
+	name := file.Name()
+	if err := file.Close(); err != nil {
+		_ = os.Remove(name)
+		return "", err
+	}
+	return name, nil
 }
 
 func WriteStream(r *io.Reader, filename string, settings *Settings) error {
-	file, err := os.Create(filename)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		return fmt.Errorf("failed to create file %s: %w", filename, err)
 	}
